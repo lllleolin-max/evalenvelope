@@ -1,0 +1,30 @@
+{
+  "commit": "cb4bddefee5914bfc05b01df964a81e0f482beb4",
+  "archive_sha256": "ac870e5e3cf1e100c305d66c77599e66aff2715959f288949f37db0e4db15c05",
+  "wheel_sha256": "0b57449d93fdf813b5eea91a616db269da7fe80d366dc5fb043c815d50db0770",
+  "module_hashes": {
+    "__init__.py": "548094cfe51b06b9802d6c7c869d1f201e8335aeb04d52ce80a932482df08bf2",
+    "checker.py": "fae3744ef390ae232a32520c865414b6b0e46ce14b60faf6bc42978cd9dba66b",
+    "cli.py": "4c0691ff84c6685d6d07200520f4f68ab40e2f2e8766373564caa60903b45531",
+    "envelope.py": "29fe9500c39e5474ffbd0defbd5905bb32f94a2446f34245368a87fc22987dce",
+    "model.py": "88b264fc7ae0b7a9f3b7b64a105ca5724c2bb5deb9accdc2cb1afa0d3d90fc5b",
+    "planner.py": "f823ac2e2da9cd75c35285bf069d77852ee3673f832d13d174399d157decc62a"
+  },
+  "all_six_git_archive_wheel_installed_modules_equal": true,
+  "suite_tests": 23,
+  "suite_exit": 0,
+  "number_probe_exit": 0,
+  "receipt_probe_sha256": "2bfa3bf4bcd6c9122ac2fd1e2199701fe9af14c79f6602a2341abb7976a2b65e",
+  "receipt_probe_exit": 0,
+  "receipt_probe": {
+    "synthetic": true,
+    "supported_prior_receipts": 1000,
+    "incoming_observations": 0,
+    "selected_actions": 0,
+    "expected": "typed cap refusal or a generated state accepted by parse_state",
+    "typed_refusal": true,
+    "error": "frozen-plan receipt cap of 1000 is exhausted",
+    "generated_state_roundtrip": true
+  },
+  "kind": "builder reproduction using unchanged independent probe; no scores"
+}

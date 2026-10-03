@@ -37,6 +37,8 @@ def read(path):
 
 def output(value, path):
     payload = json.dumps(value, indent=2, sort_keys=True) + "\n"
+    if len(payload.encode("utf-8")) > 4*1024*1024:
+        raise Error("JSON output exceeds 4 MiB; destination is unchanged")
     if path is None:
         print(payload, end="")
         return
