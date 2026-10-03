@@ -21,7 +21,9 @@ def run(cli, directory):
         output = directory/name
         args = [str(cli), command, "--manifest", str(directory/"manifest.json"), "--output", str(output)]
         for k, v in opts.items():
-            args.extend(["--"+k.replace("_", "-"), str(v)])
+            args.append("--"+k.replace("_", "-"))
+            if v is not True:
+                args.append(str(v))
         subprocess.run(args, check=True, capture_output=True, text=True)
         return json.loads(output.read_text(encoding="utf-8"))
 
@@ -39,7 +41,8 @@ def run(cli, directory):
     call("check", "before-check.json", state=directory/"prior.json", certificate=directory/"before.json")
     save("options.json", {"budget": "6", "coverage": {"critical": 2}, "pins": [], "max_nodes": 10000})
     p = call("plan", "frozen-plan.json", state=directory/"prior.json", options=directory/"options.json")
-    call("check", "plan-check.json", state=directory/"prior.json", certificate=directory/"frozen-plan.json")
+    plan_check = call("check", "plan-check.json", state=directory/"prior.json", certificate=directory/"frozen-plan.json", prove_optimal=True)
+    assert plan_check["optimality"] == "verified"
     # The actual-value file is created only after the CLI has frozen the plan.
     # These are independently declared fixture values, not certificate witnesses.
     actual = export([("critical-a", "new", "0"), ("critical-b", "new", "0")])

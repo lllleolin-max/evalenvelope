@@ -17,12 +17,12 @@ import venv
 import zipfile
 
 
-def run(args, cwd=None):
+def run(args, cwd=None, include_stderr=False):
     p = subprocess.run([str(a) for a in args], cwd=cwd, text=True, capture_output=True,
                        env={k:v for k,v in os.environ.items() if k not in ("PYTHONPATH", "PYTHONHOME")})
     if p.returncode:
         raise RuntimeError(f"command failed ({p.returncode}): {args}\n{p.stdout}\n{p.stderr}")
-    return p.stdout.strip()
+    return "\n".join(v for v in (p.stdout.strip(), p.stderr.strip() if include_stderr else "") if v)
 
 
 def verify(repo, ref, probe=None):
@@ -51,12 +51,20 @@ def verify(repo, ref, probe=None):
         cli = Path(locations["scripts"])/("evalenvelope.exe" if os.name == "nt" else "evalenvelope")
         help_text = run([cli, "--help"], work)
         if "Finite paired benchmark" not in help_text: raise RuntimeError("registered CLI missing")
-        tests = run([python, "-m", "unittest", "discover", "-s", source/"tests", "-v"], work)
+        tests = run([python, "-m", "unittest", "discover", "-s", source/"tests", "-v"], work, include_stderr=True)
         demo = json.loads(run([python, source/"tools/demo.py", cli, work/"demo"], work))
         contrast = json.loads(run([python, source/"tools/contrast.py"], work))
+        retained_probes = {}
+        for p in sorted((source/"docs/evidence").glob("probe_round*.py")):
+            retained_probes[p.name] = {"sha256": hashlib.sha256(p.read_bytes()).hexdigest(),
+                                      "output": run([python, p], work)}
         probe_result = run([python, Path(probe).resolve()], work) if probe else None
         return {"commit": sha, "python": run([python, "--version"]), "ordinary_wheel": wheel.name, "module_hashes": checked,
-                "registered_cli_verified": True, "tests": "passed", "demo": demo, "contrast": contrast, "probe": probe_result}
+                "archive_sha256": hashlib.sha256(archive.read_bytes()).hexdigest(),
+                "wheel_sha256": hashlib.sha256(wheel.read_bytes()).hexdigest(),
+                "binding_check": "Git blob == archive == ordinary wheel == installed module bytes",
+                "registered_cli_verified": True, "tests": "passed", "test_output": tests,
+                "retained_probes": retained_probes, "demo": demo, "contrast": contrast, "probe": probe_result}
 
 
 if __name__ == "__main__":
