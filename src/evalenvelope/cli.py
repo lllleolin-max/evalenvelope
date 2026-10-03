@@ -23,9 +23,14 @@ def read(path):
     def invalid_constant(value):
         raise Error("nonfinite JSON constant: " + value)
 
+    def source_integer(value):
+        if len(value) > 128:
+            raise Error("JSON source integer exceeds 128-character literal bound")
+        return int(value)
+
     try:
         return json.loads(p.read_text(encoding="utf-8"), object_pairs_hook=unique_pairs,
-                          parse_constant=invalid_constant)
+                          parse_constant=invalid_constant, parse_int=source_integer)
     except RecursionError as exc:
         raise Error("JSON nesting exceeds parser resource limit") from exc
 

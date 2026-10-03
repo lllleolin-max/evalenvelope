@@ -1,7 +1,8 @@
 """Independent certificate checker; no calls to envelope/planner algorithms."""
 from fractions import Fraction
 from itertools import combinations
-from .model import Error, fields, number, binding, count, require_state, version_one
+from .model import (Error, fields, number, binding, count, require_state, version_one,
+                    derived_text, derived_number, source_text)
 
 
 def bound_to_state(manifest, state, document):
@@ -25,12 +26,14 @@ def check_envelope(manifest, state, certificate):
         a, b = i.weight*(new[0]-old[1]), i.weight*(new[1]-old[0])
         expected_low += a
         expected_high += b
-        contributions.append({"item": i.id, "stratum": i.stratum, "weight": str(i.weight), "lower": str(a), "upper": str(b)})
+        contributions.append({"item": i.id, "stratum": i.stratum, "weight": derived_text(i.weight), "lower": derived_text(a), "upper": derived_text(b)})
     if certificate["contributions"] != contributions:
         raise Error("incorrect per-item contributions")
-    if number(certificate["lower"]) != expected_low or number(certificate["upper"]) != expected_high or number(certificate["width"]) != expected_high-expected_low:
+    if derived_number(certificate["lower"]) != expected_low or derived_number(certificate["upper"]) != expected_high or derived_number(certificate["width"]) != expected_high-expected_low:
         raise Error("incorrect completion bounds")
     margin = number(certificate["margin"])
+    if certificate["margin"] != source_text(margin):
+        raise Error("certificate margin must use canonical source encoding")
     decision = "PASS" if expected_low >= margin else "FAIL" if expected_high < margin else "INCONCLUSIVE"
     if certificate["decision"] != decision:
         raise Error("incorrect release decision")
@@ -49,7 +52,7 @@ def check_envelope(manifest, state, certificate):
                 raise Error("witness item ID must be a string")
             if row["item"] in values:
                 raise Error("duplicate witness item")
-            values[row["item"]] = (number(row["old"]), number(row["new"]))
+            values[row["item"]] = (derived_number(row["old"]), derived_number(row["new"]))
         if set(values) != {i.id for i in manifest.items}:
             raise Error("foreign/missing witness item")
         total = Fraction(0)
@@ -87,6 +90,8 @@ def check_plan(manifest, state, document, prove_optimal=False):
     req = document["requirements"]
     fields(req, ("budget", "pins", "coverage", "max_nodes"))
     budget = number(req["budget"])
+    if req["budget"] != source_text(budget):
+        raise Error("plan budget must use canonical source encoding")
     if budget < 0 or not isinstance(req["pins"], list) or any(not isinstance(p, str) for p in req["pins"]) or len(req["pins"]) != len(set(req["pins"])):
         raise Error("invalid requirements")
     if not isinstance(req["coverage"], dict) or set(req["coverage"]) - set(dict(manifest.strata)):
@@ -135,13 +140,13 @@ def check_plan(manifest, state, document, prove_optimal=False):
             if key not in choices or key in ids:
                 raise Error("unknown or duplicate action")
             i, arms, cost, reduction = choices[key]
-            if row != {"id": key, "item": i.id, "stratum": i.stratum, "arms": list(arms), "cost": str(cost), "reduction": str(reduction)}:
+            if row != {"id": key, "item": i.id, "stratum": i.stratum, "arms": list(arms), "cost": derived_text(cost), "reduction": derived_text(reduction)}:
                 raise Error("action altered from declared prior")
             ids.append(key)
         key = valid(ids)
         if key is None:
             raise Error("plan violates budget, coverage, pins or overlap")
-        if number(document["cost"]) != key[1] or number(document["reduction"]) != -key[0] or number(document["remaining_width"]) != width+key[0]:
+        if derived_number(document["cost"]) != key[1] or derived_number(document["reduction"]) != -key[0] or derived_number(document["remaining_width"]) != width+key[0]:
             raise Error("incorrect plan objective accounting")
     elif document["status"] == "OPTIMAL":
         raise Error("OPTIMAL requires a feasible plan")
@@ -150,12 +155,12 @@ def check_plan(manifest, state, document, prove_optimal=False):
     if document["status"] == "INFEASIBLE" and selected is not None:
         raise Error("infeasible claim contains an incumbent")
     if document["status"] == "UNKNOWN":
-        if number(document["reduction_upper_bound"]) != width:
+        if derived_number(document["reduction_upper_bound"]) != width:
             raise Error("UNKNOWN requires the conservative full remaining-width upper bound")
     elif document["status"] == "INFEASIBLE":
         if document["reduction_upper_bound"] is not None:
             raise Error("INFEASIBLE must not advertise a reduction bound")
-    elif number(document["reduction_upper_bound"]) != number(document["reduction"]):
+    elif derived_number(document["reduction_upper_bound"]) != derived_number(document["reduction"]):
         raise Error("OPTIMAL objective and reduction bound must agree")
     optimal = "not_checked"
     if prove_optimal:

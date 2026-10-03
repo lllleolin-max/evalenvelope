@@ -3,11 +3,98 @@ from dataclasses import dataclass
 from fractions import Fraction
 import hashlib
 import json
+from math import gcd
 import re
 
 
 class Error(ValueError):
     """Invalid or unsupported input; no result is certified."""
+
+
+# Source literals remain <=128 characters. A derived result is a sum of at
+# most 500 weighted score terms, each using <=4 source score denominators
+# (<10**128) and one weight denominator (<10**131). A common denominator is
+# <10**321500. |endpoint|<2*10**128, width<4*10**128, so numerator has <=321629
+# digits. 322000 per component is a conservative finite bound for every result.
+DERIVED_COMPONENT_DIGITS = 322000
+DERIVED_MAX_CHARS = 2 * DERIVED_COMPONENT_DIGITS + 2
+
+
+def _integer_text(value):
+    """Decimal chunks avoid Python's process-wide int/string digit setting."""
+    negative = value < 0
+    value = abs(value)
+    if value.bit_length() > (DERIVED_COMPONENT_DIGITS * 3322 + 999) // 1000:
+        raise Error("derived integer exceeds finite-manifest encoding bound")
+    chunks = []
+    while value:
+        value, tail = divmod(value, 10**9)
+        chunks.append(tail)
+    text = str(chunks.pop()) if chunks else "0"
+    text += "".join(f"{part:09d}" for part in reversed(chunks))
+    if len(text) > DERIVED_COMPONENT_DIGITS:
+        raise Error("derived integer exceeds finite-manifest encoding bound")
+    return ("-" if negative else "") + text
+
+
+def derived_text(value):
+    """Canonical reduced integer/fraction encoding for computed output only."""
+    value = Fraction(value)
+    numerator = _integer_text(value.numerator)
+    return numerator if value.denominator == 1 else numerator + "/" + _integer_text(value.denominator)
+
+
+def derived_number(value):
+    """Read canonical bounded generated numbers without global digit changes."""
+    if not isinstance(value, str) or len(value) > DERIVED_MAX_CHARS:
+        raise Error("derived number exceeds finite-manifest encoding bound or is not a string")
+    if not re.fullmatch(r"-?(?:0|[1-9][0-9]*)(?:/[1-9][0-9]*)?", value) or value == "-0":
+        raise Error("derived number must use canonical integer/reduced fraction encoding")
+    parts = value.split("/")
+    if any(len(p.lstrip("-")) > DERIVED_COMPONENT_DIGITS for p in parts):
+        raise Error("derived integer exceeds finite-manifest encoding bound")
+
+    def integer(part):
+        negative = part.startswith("-")
+        digits = part[1:] if negative else part
+        result = 0
+        for start in range(0, len(digits), 9):
+            chunk = digits[start:start+9]
+            result = result * 10**len(chunk) + int(chunk)
+        return -result if negative else result
+
+    numerator = integer(parts[0])
+    denominator = integer(parts[1]) if len(parts) == 2 else 1
+    if len(parts) == 2 and (numerator == 0 or denominator == 1 or gcd(numerator, denominator) != 1):
+        raise Error("derived fraction must be nonzero and reduced with denominator greater than one")
+    return Fraction(numerator, denominator)
+
+
+def source_text(value):
+    """Retain the source cap even when decimal -> fraction would grow."""
+    value = Fraction(value)
+    text = derived_text(value)
+    if len(text) <= 128:
+        return text
+    if value.denominator == 1:
+        raise Error("value cannot be represented within the source literal bound")
+    denominator, twos, fives = value.denominator, 0, 0
+    while denominator % 2 == 0:
+        denominator //= 2
+        twos += 1
+    while denominator % 5 == 0:
+        denominator //= 5
+        fives += 1
+    if denominator != 1:
+        raise Error("value cannot be represented within the source literal bound")
+    places = max(twos, fives)
+    scaled = abs(value.numerator) * 2**(places-twos) * 5**(places-fives)
+    digits = _integer_text(scaled).rjust(places+1, "0")
+    text = ("-" if value < 0 else "") + digits[:-places] + "." + digits[-places:]
+    text = text.rstrip("0").rstrip(".")
+    if len(text) > 128:
+        raise Error("value cannot be represented within the source literal bound")
+    return text
 
 
 def fields(value, required, optional=()):
@@ -20,6 +107,8 @@ def fields(value, required, optional=()):
 def number(value):
     # JSON floats would lose the declared exact decimal; use rational strings.
     if type(value) is int:
+        if abs(value) >= 10**128:
+            raise Error("source integer exceeds 128-character literal bound")
         value = str(value)
     if not isinstance(value, str) or len(value) > 128 or not re.fullmatch(r"-?\d+(?:/\d+|\.\d+)?", value):
         raise Error("exact number required: integer or decimal/rational string (128 chars max)")
@@ -82,11 +171,11 @@ class Manifest:
 
     def data(self):
         return {"version": 1, "kind": "independent_boxes", "identity": dict(self.identity),
-                "strata": {s: str(w) for s, w in self.strata},
+                "strata": {s: source_text(w) for s, w in self.strata},
                 "items": [dict({"id": i.id, "stratum": i.stratum,
-                    "old": {"low": str(i.old.low), "high": str(i.old.high), "cost": str(i.old.cost)},
-                    "new": {"low": str(i.new.low), "high": str(i.new.high), "cost": str(i.new.cost)}},
-                    **({"bundle_cost": str(i.bundle_cost)} if i.bundle_cost is not None else {})) for i in self.items]}
+                    "old": {"low": source_text(i.old.low), "high": source_text(i.old.high), "cost": source_text(i.old.cost)},
+                    "new": {"low": source_text(i.new.low), "high": source_text(i.new.high), "cost": source_text(i.new.cost)}},
+                    **({"bundle_cost": source_text(i.bundle_cost)} if i.bundle_cost is not None else {})) for i in self.items]}
 
 
 def parse_manifest(raw):
@@ -141,7 +230,7 @@ class Observation:
 
     def data(self):
         return {"event_id": self.event_id, "item": self.item, "arm": self.arm,
-                "value": str(self.value), "source": self.source, "kind": "actual"}
+                "value": source_text(self.value), "source": self.source, "kind": "actual"}
 
 
 @dataclass(frozen=True)

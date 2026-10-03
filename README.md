@@ -48,7 +48,7 @@ check_envelope(manifest, state, certificate)
 next_plan = plan(manifest, state, {"budget": "20", "coverage": {"critical": 4}})
 ```
 
-JSON exact numbers must be integers or decimal/rational strings; float JSON numbers are refused. See [format and mathematics](docs/MODEL.md), [commercial hypothesis](docs/USE_CASE.md), [comparison and boundaries](docs/COMPARISON.md), [correction history](docs/ITERATIONS.md), and [security](SECURITY.md).
+JSON source numbers must be integers or decimal/rational strings (128 characters); float JSON numbers are refused. Derived certificates use separately bounded canonical integer/fraction strings, including legal components above Python's default digit-conversion limit without changing global settings. See [format and mathematics](docs/MODEL.md), [derived-number bounds](docs/DERIVED_NUMBERS.md), [commercial hypothesis](docs/USE_CASE.md), [comparison and boundaries](docs/COMPARISON.md), [correction history](docs/ITERATIONS.md), and [security](SECURITY.md).
 
 ## 中文说明
 

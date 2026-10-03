@@ -1,7 +1,7 @@
 """Bounded exact prior-only action search. Values of future scores are not inputs."""
 from dataclasses import dataclass
 from fractions import Fraction
-from .model import Error, number, count, fields, box_for, require_state
+from .model import Error, number, count, fields, box_for, require_state, derived_text, source_text
 
 
 @dataclass(frozen=True)
@@ -15,7 +15,7 @@ class Action:
 
     def data(self):
         return {"id": self.id, "item": self.item, "stratum": self.stratum, "arms": list(self.arms),
-                "cost": str(self.cost), "reduction": str(self.reduction)}
+                "cost": derived_text(self.cost), "reduction": derived_text(self.reduction)}
 
 
 def actions(manifest, state):
@@ -46,7 +46,7 @@ def requirements(manifest, options):
     nodes = count(options.get("max_nodes", 100000), 1000000)
     if nodes == 0:
         raise Error("max_nodes must be positive")
-    return {"budget": str(budget), "pins": sorted(pins), "coverage": coverage, "max_nodes": nodes}
+    return {"budget": source_text(budget), "pins": sorted(pins), "coverage": coverage, "max_nodes": nodes}
 
 
 def feasible(manifest, state, selected, req):
@@ -103,8 +103,8 @@ def plan(manifest, state, options):
             "manifest_digest": manifest.fingerprint, "prior_state_digest": state.fingerprint,
             "requirements": req, "status": "UNKNOWN" if exhausted else "OPTIMAL" if best is not None else "INFEASIBLE",
             "nodes": nodes, "selected": [a.data() for a in best] if best is not None else None,
-            "cost": str(sum(a.cost for a in best)) if best is not None else None,
-            "reduction": str(reduction) if reduction is not None else None,
-            "remaining_width": str(width-reduction) if reduction is not None else None,
-            "reduction_upper_bound": str(width) if exhausted else str(reduction) if reduction is not None else None,
+            "cost": derived_text(sum(a.cost for a in best)) if best is not None else None,
+            "reduction": derived_text(reduction) if reduction is not None else None,
+            "remaining_width": derived_text(width-reduction) if reduction is not None else None,
+            "reduction_upper_bound": derived_text(width) if exhausted else derived_text(reduction) if reduction is not None else None,
             "objective": "maximize_prior_width_reduction_then_min_cost_then_lexical_action_ids"}
