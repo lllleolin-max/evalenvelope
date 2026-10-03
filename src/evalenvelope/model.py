@@ -337,6 +337,8 @@ def import_observations(manifest, state, raw, frozen_plan=None):
         actual = {(o.item, o.arm) for o in incoming}
         if actual != planned:
             raise Error("import must fulfill exactly the frozen plan's acquisitions")
+        if len(receipts) >= 1000:
+            raise Error("frozen-plan receipt cap of 1000 is exhausted")
         receipts += ({"plan_digest": digest(frozen_plan), "prior_state_digest": state.fingerprint,
                       "event_ids": [o.event_id for o in incoming]},)
     return State(manifest.fingerprint, manifest.identity, merged, receipts)
