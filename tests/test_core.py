@@ -18,6 +18,15 @@ def batch(m, rows):
 
 
 class CoreTests(unittest.TestCase):
+    def test_foreign_sdk_state_rejected(self):
+        raw = fixture(); a = parse_manifest(raw)
+        raw["identity"]["new_model"] = "different-model"
+        b = parse_manifest(raw); foreign = empty_state(a)
+        for operation in (lambda: envelope(b, foreign), lambda: plan(b, foreign, {"budget": "1"}),
+                          lambda: import_observations(b, foreign, batch(b, [])),
+                          lambda: check_envelope(b, foreign, envelope(b, empty_state(b)))):
+            with self.assertRaises(Error): operation()
+
     def test_exact_formula_and_witnesses(self):
         m = parse_manifest(fixture())
         s = import_observations(m, empty_state(m), batch(m, [("s0", "old", "1/2")]))

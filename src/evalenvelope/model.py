@@ -163,6 +163,14 @@ def empty_state(manifest):
     return State(manifest.fingerprint, manifest.identity, ())
 
 
+def require_state(manifest, state):
+    """SDK calls must bind validated states just as the CLI parser does."""
+    if not isinstance(state, State) or state.manifest_digest != manifest.fingerprint or state.identity != manifest.identity:
+        raise Error("foreign manifest/model/scorer observation state")
+    if observations(manifest, [o.data() for o in state.observations]) != state.observations:
+        raise Error("observation state is not canonical")
+
+
 def binding(manifest, raw):
     if identity(raw["identity"]) != manifest.identity or raw["manifest_digest"] != manifest.fingerprint:
         raise Error("foreign manifest/model/scorer identity")
@@ -210,6 +218,7 @@ def parse_state(manifest, raw):
 
 
 def import_observations(manifest, state, raw, frozen_plan=None):
+    require_state(manifest, state)
     fields(raw, ("version", "kind", "identity", "manifest_digest", "observations"))
     if raw["version"] != 1 or raw["kind"] != "actual_observations":
         raise Error("actual_observations import required")

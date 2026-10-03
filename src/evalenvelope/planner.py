@@ -1,7 +1,7 @@
 """Bounded exact prior-only action search. Values of future scores are not inputs."""
 from dataclasses import dataclass
 from fractions import Fraction
-from .model import Error, number, count, fields, box_for
+from .model import Error, number, count, fields, box_for, require_state
 
 
 @dataclass(frozen=True)
@@ -65,6 +65,7 @@ def feasible(manifest, state, selected, req):
 
 
 def plan(manifest, state, options):
+    require_state(manifest, state)
     req, all_actions = requirements(manifest, options), actions(manifest, state)
     if len(all_actions) > 32:
         raise Error("at most 32 candidate actions supported; partition collection rounds explicitly")

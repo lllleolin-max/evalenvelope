@@ -1,8 +1,9 @@
 """Tight exact endpoints under independent per-score boxes."""
-from .model import number, box_for
+from .model import number, box_for, require_state
 
 
 def envelope(manifest, state, margin="0"):
+    require_state(manifest, state)
     threshold = number(margin)
     seen = state.seen()
     low = high = 0

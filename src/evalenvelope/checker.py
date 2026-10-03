@@ -1,10 +1,11 @@
 """Independent certificate checker; no calls to envelope/planner algorithms."""
 from fractions import Fraction
 from itertools import combinations
-from .model import Error, fields, number, binding, count
+from .model import Error, fields, number, binding, count, require_state
 
 
 def bound_to_state(manifest, state, document):
+    require_state(manifest, state)
     binding(manifest, document)
     if document["prior_state_digest"] != state.fingerprint:
         raise Error("certificate is not bound to this observation state")
