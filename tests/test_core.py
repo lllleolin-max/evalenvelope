@@ -108,6 +108,21 @@ class CoreTests(unittest.TestCase):
         self.assertEqual(envelope(m, s, "0")["decision"], "PASS")
         self.assertEqual(envelope(m, s, "1/100")["decision"], "FAIL")
 
+    def test_checker_rejects_corrupted_bounded_search_metadata(self):
+        m = parse_manifest(fixture(1)); s = empty_state(m)
+        p = plan(m, s, {"budget": "1", "max_nodes": 1})
+        for change in (lambda d: d.update(reduction_upper_bound="-1"),
+                       lambda d: d.update(objective="future_scores"), lambda d: d.update(nodes=2),
+                       lambda d: d["requirements"].update(max_nodes=0)):
+            bad = copy.deepcopy(p); change(bad)
+            with self.assertRaises(Error): check_plan(m, s, bad, True)
+        no_incumbent = plan(m, s, {"budget": "1", "max_nodes": 1, "coverage": {"main": 1}})
+        self.assertEqual(no_incumbent["status"], "UNKNOWN")
+        self.assertIsNone(no_incumbent["selected"])
+        check_plan(m, s, no_incumbent, True)
+        bad = copy.deepcopy(no_incumbent); bad["remaining_width"] = "0"
+        with self.assertRaises(Error): check_plan(m, s, bad)
+
     def test_invalid_schema_and_numbers(self):
         for value in (True, 0.2, "NaN", "1/0", "1e4"):
             with self.assertRaises(Error): number(value)

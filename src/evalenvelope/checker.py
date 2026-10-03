@@ -85,14 +85,18 @@ def check_plan(manifest, state, document, prove_optimal=False):
     req = document["requirements"]
     fields(req, ("budget", "pins", "coverage", "max_nodes"))
     budget = number(req["budget"])
-    if budget < 0 or not isinstance(req["pins"], list) or len(req["pins"]) != len(set(req["pins"])):
+    if budget < 0 or not isinstance(req["pins"], list) or any(not isinstance(p, str) for p in req["pins"]) or len(req["pins"]) != len(set(req["pins"])):
         raise Error("invalid requirements")
     if not isinstance(req["coverage"], dict) or set(req["coverage"]) - set(dict(manifest.strata)):
         raise Error("invalid coverage")
     for v in req["coverage"].values():
         count(v, 500)
-    count(req["max_nodes"])
-    count(document["nodes"])
+    limit = count(req["max_nodes"])
+    visited = count(document["nodes"])
+    if limit == 0 or not 1 <= visited <= limit:
+        raise Error("search evidence violates positive declared node budget")
+    if document["objective"] != "maximize_prior_width_reduction_then_min_cost_then_lexical_action_ids":
+        raise Error("unsupported acquisition objective")
     choices = independent_actions(manifest, state)
     if set(req["pins"]) - set(choices):
         raise Error("unavailable pin")
@@ -137,8 +141,18 @@ def check_plan(manifest, state, document, prove_optimal=False):
             raise Error("incorrect plan objective accounting")
     elif document["status"] == "OPTIMAL":
         raise Error("OPTIMAL requires a feasible plan")
+    elif any(document[k] is not None for k in ("cost", "reduction", "remaining_width")):
+        raise Error("missing incumbent must not advertise objective values")
     if document["status"] == "INFEASIBLE" and selected is not None:
         raise Error("infeasible claim contains an incumbent")
+    if document["status"] == "UNKNOWN":
+        if number(document["reduction_upper_bound"]) != width:
+            raise Error("UNKNOWN requires the conservative full remaining-width upper bound")
+    elif document["status"] == "INFEASIBLE":
+        if document["reduction_upper_bound"] is not None:
+            raise Error("INFEASIBLE must not advertise a reduction bound")
+    elif number(document["reduction_upper_bound"]) != number(document["reduction"]):
+        raise Error("OPTIMAL objective and reduction bound must agree")
     optimal = "not_checked"
     if prove_optimal:
         if len(choices) > 20:
