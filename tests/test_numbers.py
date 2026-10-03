@@ -23,6 +23,36 @@ def manifest_raw(n, base=10**70):
 
 
 class NumberTests(unittest.TestCase):
+    def test_entire_generated_json_size_bound_fits_reader(self):
+        # This deliberately non-semantic shape is only a byte-count upper
+        # bound; it is neither an observation nor a completion certificate.
+        m = parse_manifest(manifest_raw(1)); s = empty_state(m)
+        c = envelope(m, s)
+        c["identity"] = {key: "x"*100 for key in c["identity"]}
+        c.update(margin="9"*128, lower="9"*387131, upper="9"*387131,
+                 width="9"*643131, decision="INCONCLUSIVE")
+        c["contributions"] = [{"item": "x"*100, "stratum": "x"*100,
+                                "weight": "9"*263, "lower": "9"*905,
+                                "upper": "9"*905} for _ in range(500)]
+        for side in ("lower", "upper"):
+            c["witnesses"][side] = [{"item": "x"*100, "old": "9"*258,
+                                      "new": "9"*258} for _ in range(500)]
+        size = len((json.dumps(c, indent=2, sort_keys=True)+"\n").encode("utf-8"))
+        self.assertLess(size, 4*1024*1024)
+        p = plan(m, s, {"budget": "2", "max_nodes": 1})
+        p["identity"] = c["identity"]
+        p.update(status="UNKNOWN", cost="9"*8324, reduction="9"*643131,
+                 remaining_width="9"*643131, reduction_upper_bound="9"*643131,
+                 nodes=1000000)
+        p["selected"] = [{"id": "x"*100+":both", "item": "x"*100,
+                           "stratum": "x"*100, "arms": ["old", "new"],
+                           "cost": "9"*258, "reduction": "9"*1417} for _ in range(32)]
+        p["requirements"] = {"budget": "9"*128, "pins": ["x"*100+":both"]*32,
+                               "coverage": {str(k).zfill(3)+"x"*97: 500 for k in range(100)},
+                               "max_nodes": 1000000}
+        size = len((json.dumps(p, indent=2, sort_keys=True)+"\n").encode("utf-8"))
+        self.assertLess(size, 4*1024*1024)
+
     def test_legal_source_sum_above_literal_cap(self):
         raw = manifest_raw(2); m = parse_manifest(raw); s = empty_state(m)
         expected = sum(Fraction(i["new"]["low"]) for i in raw["items"])/2

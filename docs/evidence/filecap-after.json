@@ -1,0 +1,27 @@
+{
+  "source_commit": "609403b1c430ccec553da84723c1cbcd60f3afe9",
+  "synthetic": true,
+  "paired_items": 500,
+  "score_denominators": 2000,
+  "denominator_property": "pairwise coprime by exact accumulated-product gcd; primality not asserted",
+  "max_source_score_chars": 128,
+  "manifest_bytes": 317070,
+  "report_bytes": 1649167,
+  "cli_input_file_cap_bytes": 4194304,
+  "numeric_component_max_digits": 250003,
+  "analyze_exit": 0,
+  "registered_console_check_exit": 0,
+  "independent_fraction_endpoints_and_width_equal": true,
+  "oversize_file_refusal_exit": 2,
+  "python_int_digit_setting_before": 4300,
+  "python_int_digit_setting_after": 4300,
+  "observed_seconds": 21.383,
+  "installed_module_hashes": {
+    "checker.py": "fae3744ef390ae232a32520c865414b6b0e46ce14b60faf6bc42978cd9dba66b",
+    "cli.py": "4c0691ff84c6685d6d07200520f4f68ab40e2f2e8766373564caa60903b45531",
+    "envelope.py": "29fe9500c39e5474ffbd0defbd5905bb32f94a2446f34245368a87fc22987dce",
+    "model.py": "5adc7bc75c682a31426f859598f972a5960f5a7c3524a08c167717b208f94334",
+    "planner.py": "f823ac2e2da9cd75c35285bf069d77852ee3673f832d13d174399d157decc62a",
+    "__init__.py": "548094cfe51b06b9802d6c7c869d1f201e8335aeb04d52ce80a932482df08bf2"
+  }
+}
