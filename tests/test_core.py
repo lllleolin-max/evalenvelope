@@ -2,6 +2,9 @@ import copy
 from fractions import Fraction
 from itertools import product, combinations
 import random
+import json
+from pathlib import Path
+import tempfile
 import unittest
 from evalenvelope import *
 from evalenvelope.model import number
@@ -102,6 +105,14 @@ class CoreTests(unittest.TestCase):
                        lambda d: d["items"][0]["old"].update(low="2"), lambda d: d["strata"].update(main="1/2")):
             d = fixture(); change(d)
             with self.assertRaises(Error): parse_manifest(d)
+        bad = fixture(); bad["version"] = True
+        with self.assertRaises(Error): parse_manifest(bad)
+        from evalenvelope.cli import read
+        with tempfile.TemporaryDirectory() as temp:
+            file = Path(temp)/"input.json"
+            for invalid in ('{"cost":"1","cost":"999"}', '{"value":NaN}'):
+                file.write_text(invalid, encoding="utf-8")
+                with self.assertRaises(Error): read(file)
 
     def test_independent_corner_completion_oracle(self):
         # Independently enumerate all endpoint completions, not the formula under test.

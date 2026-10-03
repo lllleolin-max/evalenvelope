@@ -35,6 +35,11 @@ def count(value, maximum=1000000):
     return value
 
 
+def version_one(value):
+    if type(value) is not int or value != 1:
+        raise Error("schema version must be the integer 1")
+
+
 def token(value):
     if not isinstance(value, str) or not re.fullmatch(r"[A-Za-z0-9_.-]{1,100}", value):
         raise Error("IDs must be 1..100 ASCII letters/digits/_.-")
@@ -86,7 +91,8 @@ class Manifest:
 
 def parse_manifest(raw):
     fields(raw, ("version", "kind", "identity", "strata", "items"))
-    if raw["version"] != 1 or raw["kind"] != "independent_boxes":
+    version_one(raw["version"])
+    if raw["kind"] != "independent_boxes":
         raise Error("only version 1 independent_boxes supported; coupled constraints are unsupported")
     ident = identity(raw["identity"])
     strata = raw["strata"]
@@ -202,7 +208,8 @@ def observations(manifest, rows):
 
 def parse_state(manifest, raw):
     fields(raw, ("version", "kind", "identity", "manifest_digest", "observations", "receipts"))
-    if raw["version"] != 1 or raw["kind"] != "observation_state":
+    version_one(raw["version"])
+    if raw["kind"] != "observation_state":
         raise Error("unsupported state")
     binding(manifest, raw)
     if not isinstance(raw["receipts"], list) or len(raw["receipts"]) > 1000:
@@ -220,7 +227,8 @@ def parse_state(manifest, raw):
 def import_observations(manifest, state, raw, frozen_plan=None):
     require_state(manifest, state)
     fields(raw, ("version", "kind", "identity", "manifest_digest", "observations"))
-    if raw["version"] != 1 or raw["kind"] != "actual_observations":
+    version_one(raw["version"])
+    if raw["kind"] != "actual_observations":
         raise Error("actual_observations import required")
     binding(manifest, raw)
     incoming = observations(manifest, raw["observations"])

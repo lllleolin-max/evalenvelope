@@ -1,7 +1,7 @@
 """Independent certificate checker; no calls to envelope/planner algorithms."""
 from fractions import Fraction
 from itertools import combinations
-from .model import Error, fields, number, binding, count, require_state
+from .model import Error, fields, number, binding, count, require_state, version_one
 
 
 def bound_to_state(manifest, state, document):
@@ -15,7 +15,8 @@ def check_envelope(manifest, state, certificate):
     fields(certificate, ("version", "kind", "identity", "manifest_digest", "prior_state_digest", "margin",
                         "lower", "upper", "width", "decision", "estimand", "constraint_model", "contributions", "witnesses"))
     bound_to_state(manifest, state, certificate)
-    if certificate["version"] != 1 or certificate["kind"] != "completion_certificate" or certificate["estimand"] != "full_fixed_finite_manifest" or certificate["constraint_model"] != "independent_boxes":
+    version_one(certificate["version"])
+    if certificate["kind"] != "completion_certificate" or certificate["estimand"] != "full_fixed_finite_manifest" or certificate["constraint_model"] != "independent_boxes":
         raise Error("unsupported certificate")
     seen, expected_low, expected_high, contributions = state.seen(), Fraction(0), Fraction(0), []
     for i in manifest.items:
@@ -78,7 +79,8 @@ def independent_actions(manifest, state):
 def check_plan(manifest, state, document, prove_optimal=False):
     fields(document, ("version", "kind", "identity", "manifest_digest", "prior_state_digest", "requirements", "status", "nodes", "selected", "cost", "reduction", "remaining_width", "reduction_upper_bound", "objective"))
     bound_to_state(manifest, state, document)
-    if document["version"] != 1 or document["kind"] != "prior_acquisition_plan" or document["status"] not in ("UNKNOWN", "OPTIMAL", "INFEASIBLE"):
+    version_one(document["version"])
+    if document["kind"] != "prior_acquisition_plan" or document["status"] not in ("UNKNOWN", "OPTIMAL", "INFEASIBLE"):
         raise Error("unsupported plan")
     req = document["requirements"]
     fields(req, ("budget", "pins", "coverage", "max_nodes"))

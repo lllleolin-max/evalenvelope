@@ -12,7 +12,19 @@ def read(path):
     p = Path(path)
     if p.stat().st_size > 4*1024*1024:
         raise Error("JSON input exceeds 4 MiB")
-    return json.loads(p.read_text(encoding="utf-8"))
+    def unique_pairs(pairs):
+        result = {}
+        for key, value in pairs:
+            if key in result:
+                raise Error("duplicate JSON object key: " + key)
+            result[key] = value
+        return result
+
+    def invalid_constant(value):
+        raise Error("nonfinite JSON constant: " + value)
+
+    return json.loads(p.read_text(encoding="utf-8"), object_pairs_hook=unique_pairs,
+                      parse_constant=invalid_constant)
 
 
 def output(value, path):
