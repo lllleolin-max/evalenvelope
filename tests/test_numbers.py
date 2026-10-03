@@ -1,5 +1,6 @@
 """Independent Fraction oracles for legal derived encodings and actual CLI."""
 import copy
+import hashlib
 from fractions import Fraction
 import json
 import os
@@ -107,10 +108,21 @@ class NumberTests(unittest.TestCase):
             raw["items"][0][arm].update(low="0", high="1", cost=decimal)
         m = parse_manifest(raw)
         self.assertEqual(parse_manifest(m.data()), m)
+        # Fingerprints retain the original exact reduced-fraction commitment,
+        # independently of the new source-persistence decimal fallback.
+        committed = copy.deepcopy(raw)
+        for arm in ("old", "new"):
+            committed["items"][0][arm]["cost"] = str(Fraction(decimal))
+        expected_digest = hashlib.sha256(json.dumps(committed, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode()).hexdigest()
+        self.assertEqual(m.fingerprint, expected_digest)
         doc = {"version": 1, "kind": "actual_observations", "identity": dict(m.identity), "manifest_digest": m.fingerprint,
                "observations": [{"event_id": "run1", "item": "s0", "arm": "old", "value": decimal, "source": "synthetic", "kind": "actual"}]}
         s = import_observations(m, empty_state(m), doc)
         self.assertEqual(parse_state(m, s.data()), s)
+        committed_state = s.data()
+        committed_state["observations"][0]["value"] = str(Fraction(decimal))
+        expected_state = hashlib.sha256(json.dumps(committed_state, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode()).hexdigest()
+        self.assertEqual(s.fingerprint, expected_state)
         cert = envelope(m, s, decimal)
         check_envelope(m, s, cert)
         p = plan(m, s, {"budget": decimal})

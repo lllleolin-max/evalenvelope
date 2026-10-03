@@ -169,13 +169,14 @@ class Manifest:
     items: tuple
     fingerprint: str
 
-    def data(self):
+    def data(self, canonical=False):
+        encode = derived_text if canonical else source_text
         return {"version": 1, "kind": "independent_boxes", "identity": dict(self.identity),
-                "strata": {s: source_text(w) for s, w in self.strata},
+                "strata": {s: encode(w) for s, w in self.strata},
                 "items": [dict({"id": i.id, "stratum": i.stratum,
-                    "old": {"low": source_text(i.old.low), "high": source_text(i.old.high), "cost": source_text(i.old.cost)},
-                    "new": {"low": source_text(i.new.low), "high": source_text(i.new.high), "cost": source_text(i.new.cost)}},
-                    **({"bundle_cost": source_text(i.bundle_cost)} if i.bundle_cost is not None else {})) for i in self.items]}
+                    "old": {"low": encode(i.old.low), "high": encode(i.old.high), "cost": encode(i.old.cost)},
+                    "new": {"low": encode(i.new.low), "high": encode(i.new.high), "cost": encode(i.new.cost)}},
+                    **({"bundle_cost": encode(i.bundle_cost)} if i.bundle_cost is not None else {})) for i in self.items]}
 
 
 def parse_manifest(raw):
@@ -217,7 +218,7 @@ def parse_manifest(raw):
     items = tuple(Item(k, s, dict(strata)[s] / sizes[s], o, n, b)
                   for k, s, o, n, b in sorted(parsed))
     draft = Manifest(ident, strata, items, "")
-    return Manifest(ident, strata, items, digest(draft.data()))
+    return Manifest(ident, strata, items, digest(draft.data(canonical=True)))
 
 
 @dataclass(frozen=True)
@@ -228,9 +229,9 @@ class Observation:
     value: Fraction
     source: str
 
-    def data(self):
+    def data(self, canonical=False):
         return {"event_id": self.event_id, "item": self.item, "arm": self.arm,
-                "value": source_text(self.value), "source": self.source, "kind": "actual"}
+                "value": (derived_text if canonical else source_text)(self.value), "source": self.source, "kind": "actual"}
 
 
 @dataclass(frozen=True)
@@ -240,15 +241,15 @@ class State:
     observations: tuple
     receipts: tuple = ()
 
-    def data(self):
+    def data(self, canonical=False):
         return {"version": 1, "kind": "observation_state", "identity": dict(self.identity),
                 "manifest_digest": self.manifest_digest,
-                "observations": [o.data() for o in self.observations],
+                "observations": [o.data(canonical=canonical) for o in self.observations],
                 "receipts": list(self.receipts)}
 
     @property
     def fingerprint(self):
-        return digest(self.data())
+        return digest(self.data(canonical=True))
 
     def seen(self):
         return {(o.item, o.arm): o.value for o in self.observations}
