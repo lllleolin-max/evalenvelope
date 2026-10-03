@@ -16,7 +16,9 @@ def compare(weights, costs, budget, coverage=0):
     optimized = plan(m, state, options)
     check_plan(m, state, optimized, True)
     candidates = independent_actions(m, state)
-    order = sorted(candidates, key=lambda k: (candidates[k][2], k))
+    # Zero-width records offer no uncertainty benefit, except when required
+    # for completed-pair coverage. Prefer beneficial cheap actions first.
+    order = sorted(candidates, key=lambda k: (candidates[k][3] == 0, candidates[k][2], k))
     # Enumerating feasibility gives both strategies exactly the same hard constraints.
     # The baseline greedily prefers inclusion of cheapest actions; no future values.
     feasible = []
