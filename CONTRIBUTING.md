@@ -1,0 +1,5 @@
+# Contributing
+
+Keep the estimand fixed and missing scores distinct from actual scores. Add a failing invariant or adversarial probe before changing the algorithm. Run `python tools/verify_install.py`; this archives the named Git commit, builds a normal wheel, installs it into a fresh environment, compares package bytes with Git/archive/wheel, then runs the independent-oracle suite, real CLI demo and fair synthetic contrast. Commit changes before verification or explicitly verify the parent SHA for before evidence. Editable installs are not release evidence.
+
+CI defines Ubuntu/Windows × Python 3.11/3.14 ordinary-wheel jobs. Checked-in workflow YAML is not evidence that remote runs passed. Keep UNKNOWN distinct from optimality/infeasibility, disclose synthetic data and retain adverse/equal cases. Do not add population statistics without a separately justified statistical model. MIT contributions are welcome; maintainers may decline features that weaken the finite, independent-box trust boundary.
