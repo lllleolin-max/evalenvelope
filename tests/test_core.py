@@ -123,6 +123,14 @@ class CoreTests(unittest.TestCase):
         bad = copy.deepcopy(no_incumbent); bad["remaining_width"] = "0"
         with self.assertRaises(Error): check_plan(m, s, bad)
 
+    def test_malformed_certificate_ids_have_typed_refusals(self):
+        m = parse_manifest(fixture(1)); s = empty_state(m)
+        p = plan(m, s, {"budget": "1"})
+        p["selected"][0]["id"] = ["s0:new"]
+        with self.assertRaises(Error): check_plan(m, s, p)
+        c = envelope(m, s); c["witnesses"]["lower"][0]["item"] = ["s0"]
+        with self.assertRaises(Error): check_envelope(m, s, c)
+
     def test_invalid_schema_and_numbers(self):
         for value in (True, 0.2, "NaN", "1/0", "1e4"):
             with self.assertRaises(Error): number(value)

@@ -23,8 +23,11 @@ def read(path):
     def invalid_constant(value):
         raise Error("nonfinite JSON constant: " + value)
 
-    return json.loads(p.read_text(encoding="utf-8"), object_pairs_hook=unique_pairs,
-                      parse_constant=invalid_constant)
+    try:
+        return json.loads(p.read_text(encoding="utf-8"), object_pairs_hook=unique_pairs,
+                          parse_constant=invalid_constant)
+    except RecursionError as exc:
+        raise Error("JSON nesting exceeds parser resource limit") from exc
 
 
 def output(value, path):
@@ -80,10 +83,12 @@ def main(argv=None):
             if not args.certificate:
                 raise Error("check requires --certificate")
             certificate = read(args.certificate)
+            if not isinstance(certificate, dict):
+                raise Error("certificate must be a JSON object")
             result = check_envelope(manifest, state, certificate) if certificate.get("kind") == "completion_certificate" else check_plan(manifest, state, certificate, args.prove_optimal)
         output(result, args.output)
         return 0
-    except (Error, OSError, json.JSONDecodeError) as exc:
+    except (Error, OSError, UnicodeError, json.JSONDecodeError) as exc:
         print(json.dumps({"error": str(exc)}), file=sys.stderr)
         return 2
 

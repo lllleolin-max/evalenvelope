@@ -37,3 +37,11 @@ Round 3 validated after the test-only repair at `ac0fbae99f32af418b7b1fc8258490b
 Before: `ac0fbae99f32af418b7b1fc8258490bd070cf335`. [Unchanged probe](evidence/probe_round4.py) produced a legitimate node-limited UNKNOWN plan, then changed its reduction upper bound to -1, replaced its prior-only objective, claimed more visited nodes than its declared budget and set the budget to zero. Even the independent subset oracle accepted every corruption because it only checked feasible selections. [Actual before failure](evidence/round4-before.txt) preserves all four failures.
 
 Correction: the checker now validates declared objective, positive node budget, observed node count, absence of fake incumbent fields, status-specific reduction bounds and their relation to the actual remaining uncertainty. It still distinguishes feasibility verification from exhaustive proof of OPTIMAL/INFEASIBLE; UNKNOWN stays UNKNOWN. Added corruption and no-incumbent regression tests. The after commit introducing this section is a direct child of the before SHA. Reproduce: `python tools/verify_install.py --ref COMMIT --probe docs/evidence/probe_round4.py`.
+
+Round 4 after: `f3964a74ca7fc8bc663a87bb5483bf68e89b9232`; [ordinary-wheel output](evidence/round4-after.txt) records the four unchanged corruption probes refused, with the principal tests, CLI workflow and contrast passing.
+
+## Round 5: malformed checker inputs leaked Python exceptions
+
+Before: `f3964a74ca7fc8bc663a87bb5483bf68e89b9232`. [Unchanged probe](evidence/probe_round5.py) supplies list-valued action/witness IDs and a non-object JSON certificate through the registered CLI. SDK checkers leaked TypeError; CLI returned traceback/exit 1 instead of the documented input refusal/exit 2. [Actual before failure](evidence/round5-before.txt) is retained.
+
+Correction: typed ID checks before dictionary membership, an explicit CLI certificate-object boundary, and typed refusals for overnested/invalid-UTF8 JSON. Added SDK regression tests. This section's introducing commit is the direct child of the before SHA. Reproduce with `python tools/verify_install.py --ref COMMIT --probe docs/evidence/probe_round5.py`.

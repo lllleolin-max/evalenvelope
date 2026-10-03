@@ -45,6 +45,8 @@ def check_envelope(manifest, state, certificate):
         values = {}
         for row in rows:
             fields(row, ("item", "old", "new"))
+            if not isinstance(row["item"], str):
+                raise Error("witness item ID must be a string")
             if row["item"] in values:
                 raise Error("duplicate witness item")
             values[row["item"]] = (number(row["old"]), number(row["new"]))
@@ -128,6 +130,8 @@ def check_plan(manifest, state, document, prove_optimal=False):
         for row in selected:
             fields(row, ("id", "item", "stratum", "arms", "cost", "reduction"))
             key = row["id"]
+            if not isinstance(key, str):
+                raise Error("selected action ID must be a string")
             if key not in choices or key in ids:
                 raise Error("unknown or duplicate action")
             i, arms, cost, reduction = choices[key]
