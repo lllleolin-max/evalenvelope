@@ -61,6 +61,8 @@ class CoreTests(unittest.TestCase):
             with self.assertRaises(Error): import_observations(m, s, bad)
         bad = copy.deepcopy(b); bad["observations"][0]["value"] = "0"
         with self.assertRaises(Error): import_observations(m, s, bad)
+        bad["observations"][0]["value"] = "2"
+        with self.assertRaises(Error): import_observations(m, s, bad)
 
     def test_full_capacity_import_is_idempotent(self):
         m = parse_manifest(fixture(500))
@@ -71,8 +73,6 @@ class CoreTests(unittest.TestCase):
         self.assertEqual(import_observations(m, full, dict(b, observations=b["observations"][:1])), full)
         new_event = dict(b["observations"][0], event_id="extra-confirmation")
         with self.assertRaises(Error): import_observations(m, full, dict(b, observations=[new_event]))
-        bad["observations"][0]["value"] = "2"
-        with self.assertRaises(Error): import_observations(m, s, bad)
 
     def test_plan_freeze_exact_actual_import(self):
         m = parse_manifest(fixture())

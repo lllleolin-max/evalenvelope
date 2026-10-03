@@ -1,0 +1,35 @@
+Traceback (most recent call last):
+  File "D:\coding ����\GitHubˮ��\work\ten-projects\evalenvelope\tools\verify_install.py", line 65, in <module>
+    result = verify(Path(__file__).resolve().parents[1], args.ref, args.probe)
+  File "D:\coding ����\GitHubˮ��\work\ten-projects\evalenvelope\tools\verify_install.py", line 54, in verify
+    tests = run([python, "-m", "unittest", "discover", "-s", source/"tests", "-v"], work)
+  File "D:\coding ����\GitHubˮ��\work\ten-projects\evalenvelope\tools\verify_install.py", line 24, in run
+    raise RuntimeError(f"command failed ({p.returncode}): {args}\n{p.stdout}\n{p.stderr}")
+RuntimeError: command failed (1): [WindowsPath('C:/Users/34178/AppData/Local/Temp/evalenvelope-wheel-lwr6_bjh/env/Scripts/python.exe'), '-m', 'unittest', 'discover', '-s', WindowsPath('C:/Users/34178/AppData/Local/Temp/evalenvelope-wheel-lwr6_bjh/source/tests'), '-v']
+
+test_bundles_overlap_cost_and_coverage (test_core.CoreTests.test_bundles_overlap_cost_and_coverage) ... ok
+test_exact_formula_and_witnesses (test_core.CoreTests.test_exact_formula_and_witnesses) ... ok
+test_fixed_strata_and_zero_weight (test_core.CoreTests.test_fixed_strata_and_zero_weight) ... ok
+test_foreign_sdk_state_rejected (test_core.CoreTests.test_foreign_sdk_state_rejected) ... ok
+test_full_capacity_import_is_idempotent (test_core.CoreTests.test_full_capacity_import_is_idempotent) ... ERROR
+test_import_actual_conflicts_foreign_and_idempotence (test_core.CoreTests.test_import_actual_conflicts_foreign_and_idempotence) ... ok
+test_independent_corner_completion_oracle (test_core.CoreTests.test_independent_corner_completion_oracle) ... ok
+test_independent_subset_plan_oracle (test_core.CoreTests.test_independent_subset_plan_oracle) ... ok
+test_invalid_schema_and_numbers (test_core.CoreTests.test_invalid_schema_and_numbers) ... ok
+test_margin_equality_and_unknown (test_core.CoreTests.test_margin_equality_and_unknown) ... ok
+test_plan_freeze_exact_actual_import (test_core.CoreTests.test_plan_freeze_exact_actual_import) ... ok
+
+======================================================================
+ERROR: test_full_capacity_import_is_idempotent (test_core.CoreTests.test_full_capacity_import_is_idempotent)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\34178\AppData\Local\Temp\evalenvelope-wheel-lwr6_bjh\source\tests\test_core.py", line 74, in test_full_capacity_import_is_idempotent
+    bad["observations"][0]["value"] = "2"
+    ^^^
+NameError: name 'bad' is not defined
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.132s
+
+FAILED (errors=1)
+
