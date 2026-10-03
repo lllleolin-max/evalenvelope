@@ -1,0 +1,31 @@
+{
+  "source_commit": "6756d3d0659d765caf65e4e626e9073f251f0bd2",
+  "synthetic": true,
+  "paired_items": 500,
+  "score_denominators": 2000,
+  "denominator_property": "same retained pairwise-coprime fixture; exact accumulated-product gcd; primality not asserted",
+  "max_source_score_chars": 128,
+  "manifest_bytes": 317070,
+  "manifest_sha256": "4f949c06495585c3ddcbd759a537c984963c7b282540b0ada1a1409c3505a257",
+  "report_bytes": 1649167,
+  "report_sha256": "c9a522e09d786a3d63eff023c17609ff05a22be38d5e0f614103cc472002f987",
+  "report_bytes_equal_original_609403_fixture": true,
+  "cli_input_and_output_file_cap_bytes": 4194304,
+  "numeric_component_max_digits": 250003,
+  "analyze_exit": 0,
+  "registered_console_check_exit": 0,
+  "independent_fraction_endpoints_and_width_equal": true,
+  "oversize_file_refusal_exit": 2,
+  "python_int_digit_setting_before": 4300,
+  "python_int_digit_setting_after": 4300,
+  "observed_seconds": 16.183,
+  "installed_module_hashes": {
+    "checker.py": "fae3744ef390ae232a32520c865414b6b0e46ce14b60faf6bc42978cd9dba66b",
+    "cli.py": "424b670c4e22d869525c5d65be56783f3b7b4fc28370918884dac89145efc431",
+    "envelope.py": "29fe9500c39e5474ffbd0defbd5905bb32f94a2446f34245368a87fc22987dce",
+    "model.py": "88b264fc7ae0b7a9f3b7b64a105ca5724c2bb5deb9accdc2cb1afa0d3d90fc5b",
+    "planner.py": "f823ac2e2da9cd75c35285bf069d77852ee3673f832d13d174399d157decc62a",
+    "__init__.py": "548094cfe51b06b9802d6c7c869d1f201e8335aeb04d52ce80a932482df08bf2"
+  },
+  "all_six_match_fresh_source_archive_wheel_driver": true
+}
