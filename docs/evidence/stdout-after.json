@@ -1,0 +1,33 @@
+{
+  "commit": "8f8d82d8d62a4371a5567f221e43d4f6393472d0",
+  "archive_sha256": "5bf3b8e773e8987a817575c0222896d5ae5937ffdb8f7f2b8dc401b49c13731c",
+  "wheel_sha256": "24717af07f197b01474f2e3b5b86d64463043fd5753292b22cf5484b2c34b4fa",
+  "module_hashes": {
+    "__init__.py": "548094cfe51b06b9802d6c7c869d1f201e8335aeb04d52ce80a932482df08bf2",
+    "checker.py": "fae3744ef390ae232a32520c865414b6b0e46ce14b60faf6bc42978cd9dba66b",
+    "cli.py": "7c236e034543b540065ab6e36c5ed0e4d0956e683963b967ca7edff62e5d87b6",
+    "envelope.py": "29fe9500c39e5474ffbd0defbd5905bb32f94a2446f34245368a87fc22987dce",
+    "model.py": "88b264fc7ae0b7a9f3b7b64a105ca5724c2bb5deb9accdc2cb1afa0d3d90fc5b",
+    "planner.py": "f823ac2e2da9cd75c35285bf069d77852ee3673f832d13d174399d157decc62a"
+  },
+  "all_six_git_archive_wheel_installed_modules_equal": true,
+  "suite_tests": 28,
+  "suite_exit": 0,
+  "number_probe_exit": 0,
+  "stdout_probe_sha256": "11f03529274bcff8a857db55a0d65528f2c1106e6049ef5fe8771530b74d86a6",
+  "stdout_probe_exit": 0,
+  "stdout_probe": {
+    "synthetic": true,
+    "platform": "win32",
+    "accepted_compact_source_bytes": 4144170,
+    "logical_formatted_UTF8_payload_bytes": 4194176,
+    "cap_bytes": 4194304,
+    "import_exit": 0,
+    "actual_stdout_bytes": 4194176,
+    "captured_state_reload_exit": 0,
+    "source_preserved": true,
+    "expected": "typed refusal or success whose actual captured bytes are <=cap and loadable",
+    "stdout_closure": true
+  },
+  "kind": "builder reproduction of unchanged independent actual-byte probe; no scores"
+}
