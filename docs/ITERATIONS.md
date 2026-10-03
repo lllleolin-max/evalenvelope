@@ -19,3 +19,11 @@ Round 1 after: `5da6e622c012055b56c12708033baf16ae676486`; [ordinary-wheel after
 Before: `5da6e622c012055b56c12708033baf16ae676486`. [Unchanged probe](evidence/probe_round2.py) found that `version:true` was accepted as integer 1 by manifest parsing and certificate checking, and a registered CLI invocation accepted a manifest with contradictory duplicate `version` keys (exit 0). [Actual before failure](evidence/round2-before.txt) is retained.
 
 Correction: exact integer version validation at all schema boundaries; CLI JSON object-pair decoding refuses duplicate keys and nonfinite JSON constants before any identity/cost parsing. This prevents silently discarding a conflicting declared field. Added regression tests. The after commit introducing this section is a direct child of the before SHA; after output and full SHA are recorded in the next entry. Reproduce with `python tools/verify_install.py --ref COMMIT --probe docs/evidence/probe_round2.py`.
+
+Round 2 after: `369f667916faa44a92c92ae9d93671f8aba3c908`; [ordinary-wheel output](evidence/round2-after.txt) records rejection of all three original failures and passing principal suite/demo/contrast.
+
+## Round 3: idempotent replay failed at the state resource boundary
+
+Before: `369f667916faa44a92c92ae9d93671f8aba3c908`. [Unchanged probe](evidence/probe_round3.py) fills the supported 500 paired-item manifest with 1000 actual score records, then retries one record and the entire export. Both legitimate idempotent replays raised the raw 1000-row cap even though unique stored records stayed at 1000. [Actual before output](evidence/round3-before.txt) preserves both errors and the separate conflicting-replay rejection.
+
+Correction: bound state and incoming exports separately, allow only their bounded internal concatenation, then apply the 1000 unique-event stored-state cap after event conflict detection and deduplication. New confirmation event IDs beyond the cap still refuse; conflicting payloads still refuse. Added full-capacity regression tests. The section's introducing code commit is a direct child of the before SHA; the next entry records its full SHA and after output. Reproduce with `python tools/verify_install.py --ref COMMIT --probe docs/evidence/probe_round3.py`.

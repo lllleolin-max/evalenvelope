@@ -61,6 +61,16 @@ class CoreTests(unittest.TestCase):
             with self.assertRaises(Error): import_observations(m, s, bad)
         bad = copy.deepcopy(b); bad["observations"][0]["value"] = "0"
         with self.assertRaises(Error): import_observations(m, s, bad)
+
+    def test_full_capacity_import_is_idempotent(self):
+        m = parse_manifest(fixture(500))
+        b = batch(m, [(i.id, a, "1/2") for i in m.items for a in ("old", "new")])
+        full = import_observations(m, empty_state(m), b)
+        self.assertEqual(len(full.observations), 1000)
+        self.assertEqual(import_observations(m, full, b), full)
+        self.assertEqual(import_observations(m, full, dict(b, observations=b["observations"][:1])), full)
+        new_event = dict(b["observations"][0], event_id="extra-confirmation")
+        with self.assertRaises(Error): import_observations(m, full, dict(b, observations=[new_event]))
         bad["observations"][0]["value"] = "2"
         with self.assertRaises(Error): import_observations(m, s, bad)
 

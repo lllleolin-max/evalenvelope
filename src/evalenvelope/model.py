@@ -182,9 +182,9 @@ def binding(manifest, raw):
         raise Error("foreign manifest/model/scorer identity")
 
 
-def observations(manifest, rows):
-    if not isinstance(rows, list) or len(rows) > 1000:
-        raise Error("observations must be a list of at most 1000 records")
+def observations(manifest, rows, max_input_rows=1000):
+    if not isinstance(rows, list) or len(rows) > max_input_rows:
+        raise Error(f"observations must be a list of at most {max_input_rows} input records")
     by_id, by_cell = {}, {}
     items = {i.id: i for i in manifest.items}
     for row in rows:
@@ -203,6 +203,8 @@ def observations(manifest, rows):
             raise Error("conflicting actual scores for one immutable sample/model/scorer")
         by_id[event] = obs
         by_cell[key, arm] = obs
+    if len(by_id) > 1000:
+        raise Error("observation state exceeds 1000 unique event records")
     return tuple(sorted(by_id.values(), key=lambda o: o.event_id))
 
 
@@ -232,7 +234,9 @@ def import_observations(manifest, state, raw, frozen_plan=None):
         raise Error("actual_observations import required")
     binding(manifest, raw)
     incoming = observations(manifest, raw["observations"])
-    merged = observations(manifest, [o.data() for o in state.observations + incoming])
+    # Each input and existing state is bounded separately. Replay overlap must
+    # be removed before applying the stored unique-event cap.
+    merged = observations(manifest, [o.data() for o in state.observations + incoming], max_input_rows=2000)
     receipts = state.receipts
     if frozen_plan is not None:
         from .checker import check_plan
