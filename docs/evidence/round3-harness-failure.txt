@@ -1,11 +1,11 @@
 Traceback (most recent call last):
-  File "D:\coding ����\GitHubˮ��\work\ten-projects\evalenvelope\tools\verify_install.py", line 65, in <module>
+  File "<REPO>\tools\verify_install.py", line 65, in <module>
     result = verify(Path(__file__).resolve().parents[1], args.ref, args.probe)
-  File "D:\coding ����\GitHubˮ��\work\ten-projects\evalenvelope\tools\verify_install.py", line 54, in verify
+  File "<REPO>\tools\verify_install.py", line 54, in verify
     tests = run([python, "-m", "unittest", "discover", "-s", source/"tests", "-v"], work)
-  File "D:\coding ����\GitHubˮ��\work\ten-projects\evalenvelope\tools\verify_install.py", line 24, in run
+  File "<REPO>\tools\verify_install.py", line 24, in run
     raise RuntimeError(f"command failed ({p.returncode}): {args}\n{p.stdout}\n{p.stderr}")
-RuntimeError: command failed (1): [WindowsPath('C:/Users/34178/AppData/Local/Temp/evalenvelope-wheel-lwr6_bjh/env/Scripts/python.exe'), '-m', 'unittest', 'discover', '-s', WindowsPath('C:/Users/34178/AppData/Local/Temp/evalenvelope-wheel-lwr6_bjh/source/tests'), '-v']
+RuntimeError: command failed (1): [WindowsPath('<WHEEL_WORK>/env/Scripts/python.exe'), '-m', 'unittest', 'discover', '-s', WindowsPath('<WHEEL_WORK>/source/tests'), '-v']
 
 test_bundles_overlap_cost_and_coverage (test_core.CoreTests.test_bundles_overlap_cost_and_coverage) ... ok
 test_exact_formula_and_witnesses (test_core.CoreTests.test_exact_formula_and_witnesses) ... ok
@@ -23,7 +23,7 @@ test_plan_freeze_exact_actual_import (test_core.CoreTests.test_plan_freeze_exact
 ERROR: test_full_capacity_import_is_idempotent (test_core.CoreTests.test_full_capacity_import_is_idempotent)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "C:\Users\34178\AppData\Local\Temp\evalenvelope-wheel-lwr6_bjh\source\tests\test_core.py", line 74, in test_full_capacity_import_is_idempotent
+  File "<WHEEL_WORK>\source\tests\test_core.py", line 74, in test_full_capacity_import_is_idempotent
     bad["observations"][0]["value"] = "2"
     ^^^
 NameError: name 'bad' is not defined

@@ -1,15 +1,15 @@
 Traceback (most recent call last):
-  File "D:\coding ����\GitHubˮ��\work\ten-projects\evalenvelope\tools\verify_install.py", line 65, in <module>
+  File "<REPO>\tools\verify_install.py", line 65, in <module>
     result = verify(Path(__file__).resolve().parents[1], args.ref, args.probe)
-  File "D:\coding ����\GitHubˮ��\work\ten-projects\evalenvelope\tools\verify_install.py", line 57, in verify
+  File "<REPO>\tools\verify_install.py", line 57, in verify
     probe_result = run([python, Path(probe).resolve()], work) if probe else None
                    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\coding ����\GitHubˮ��\work\ten-projects\evalenvelope\tools\verify_install.py", line 24, in run
+  File "<REPO>\tools\verify_install.py", line 24, in run
     raise RuntimeError(f"command failed ({p.returncode}): {args}\n{p.stdout}\n{p.stderr}")
-RuntimeError: command failed (1): [WindowsPath('C:/Users/34178/AppData/Local/Temp/evalenvelope-wheel-58g05jus/env/Scripts/python.exe'), WindowsPath('D:/coding ����/GitHubˮ��/work/ten-projects/evalenvelope/docs/evidence/probe_round5.py')]
+RuntimeError: command failed (1): [WindowsPath('<WHEEL_WORK>/env/Scripts/python.exe'), WindowsPath('<REPO>/docs/evidence/probe_round5.py')]
 
 Traceback (most recent call last):
-  File "D:\coding ����\GitHubˮ��\work\ten-projects\evalenvelope\docs\evidence\probe_round5.py", line 28, in <module>
+  File "<REPO>\docs\evidence\probe_round5.py", line 28, in <module>
     assert not failures, "malformed-input refusal boundary failures: "+str(failures)
            ^^^^^^^^^^^^
 AssertionError: malformed-input refusal boundary failures: ['unhashable selected action ID: leaked TypeError', 'unhashable witness item: leaked TypeError', 'non-object CLI certificate leaks traceback/exit=1']

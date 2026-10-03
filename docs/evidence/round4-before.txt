@@ -1,15 +1,15 @@
 Traceback (most recent call last):
-  File "D:\coding ����\GitHubˮ��\work\ten-projects\evalenvelope\tools\verify_install.py", line 65, in <module>
+  File "<REPO>\tools\verify_install.py", line 65, in <module>
     result = verify(Path(__file__).resolve().parents[1], args.ref, args.probe)
-  File "D:\coding ����\GitHubˮ��\work\ten-projects\evalenvelope\tools\verify_install.py", line 57, in verify
+  File "<REPO>\tools\verify_install.py", line 57, in verify
     probe_result = run([python, Path(probe).resolve()], work) if probe else None
                    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\coding ����\GitHubˮ��\work\ten-projects\evalenvelope\tools\verify_install.py", line 24, in run
+  File "<REPO>\tools\verify_install.py", line 24, in run
     raise RuntimeError(f"command failed ({p.returncode}): {args}\n{p.stdout}\n{p.stderr}")
-RuntimeError: command failed (1): [WindowsPath('C:/Users/34178/AppData/Local/Temp/evalenvelope-wheel-i38oji75/env/Scripts/python.exe'), WindowsPath('D:/coding ����/GitHubˮ��/work/ten-projects/evalenvelope/docs/evidence/probe_round4.py')]
+RuntimeError: command failed (1): [WindowsPath('<WHEEL_WORK>/env/Scripts/python.exe'), WindowsPath('<REPO>/docs/evidence/probe_round4.py')]
 
 Traceback (most recent call last):
-  File "D:\coding ����\GitHubˮ��\work\ten-projects\evalenvelope\docs\evidence\probe_round4.py", line 19, in <module>
+  File "<REPO>\docs\evidence\probe_round4.py", line 19, in <module>
     assert not failures, "checker accepts unsupported bounded-search evidence: "+str(failures)
            ^^^^^^^^^^^^
 AssertionError: checker accepts unsupported bounded-search evidence: ['negative reduction upper bound', 'invented objective', 'exceeded declared node budget', 'zero search budget']

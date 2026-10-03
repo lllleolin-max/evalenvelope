@@ -1,18 +1,18 @@
 Traceback (most recent call last):
-  File "D:\coding ����\GitHubˮ��\work\ten-projects\evalenvelope\tools\verify_install.py", line 65, in <module>
+  File "<REPO>\tools\verify_install.py", line 65, in <module>
     result = verify(Path(__file__).resolve().parents[1], args.ref, args.probe)
-  File "D:\coding ����\GitHubˮ��\work\ten-projects\evalenvelope\tools\verify_install.py", line 56, in verify
+  File "<REPO>\tools\verify_install.py", line 56, in verify
     contrast = json.loads(run([python, source/"tools/contrast.py"], work))
                           ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\coding ����\GitHubˮ��\work\ten-projects\evalenvelope\tools\verify_install.py", line 24, in run
+  File "<REPO>\tools\verify_install.py", line 24, in run
     raise RuntimeError(f"command failed ({p.returncode}): {args}\n{p.stdout}\n{p.stderr}")
-RuntimeError: command failed (1): [WindowsPath('C:/Users/34178/AppData/Local/Temp/evalenvelope-wheel-xgjkekyh/env/Scripts/python.exe'), WindowsPath('C:/Users/34178/AppData/Local/Temp/evalenvelope-wheel-xgjkekyh/source/tools/contrast.py')]
+RuntimeError: command failed (1): [WindowsPath('<WHEEL_WORK>/env/Scripts/python.exe'), WindowsPath('<WHEEL_WORK>/source/tools/contrast.py')]
 
 Traceback (most recent call last):
-  File "C:\Users\34178\AppData\Local\Temp\evalenvelope-wheel-xgjkekyh\source\tools\contrast.py", line 48, in <module>
+  File "<WHEEL_WORK>\source\tools\contrast.py", line 48, in <module>
     if __name__ == "__main__": main()
                                ~~~~^^
-  File "C:\Users\34178\AppData\Local\Temp\evalenvelope-wheel-xgjkekyh\source\tools\contrast.py", line 43, in main
+  File "<WHEEL_WORK>\source\tools\contrast.py", line 43, in main
     assert cases["equal_cost_gain"]["optimized_reduction"] == cases["equal_cost_gain"]["baseline_reduction"]
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 AssertionError
